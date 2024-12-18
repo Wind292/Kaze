@@ -31,3 +31,15 @@
         <track kind="captions">
     </video>
 {/if}
+
+<h1>title</h1>
+
+<style>
+    video {
+        height: 99.9vh;
+        width: 100vw;
+        margin-left: -8px;
+        margin-top: -8px;
+    }
+
+</style>

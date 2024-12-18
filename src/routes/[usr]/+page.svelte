@@ -44,21 +44,18 @@
         color: rgb(192, 192, 192);
         font-family: Arial, Helvetica, sans-serif;
         background-color: #2e2e2e;
-        
         user-select: none;
     }
 
     .vidcard {
        
-
-        width: 99.8%;
+        margin-left: 2%;
+        width: 97.8%;
         border-style: none;
         border-radius: 20px;
         left: 30%;
         top: 20vh;
-        margin-bottom: 20px;
-        background-color: rgba(255, 255, 255, 0.05);
-        box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.3);
+        margin-bottom: -10px;
         text-indent: 20px;
         padding-top: 10px; 
         padding-bottom: 10px; 
@@ -125,6 +122,7 @@ a {
 
 
     button {
+        margin-left: 20px;
         display: inline-block;
         padding: 12px 20px;
         font-size: 18px;
