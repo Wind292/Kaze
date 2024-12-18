@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
   import Cookies from 'js-cookie'
   
+  let isLoading = false;
+
   let title = "";
   let file;
   let user;
@@ -42,21 +44,35 @@
     formData.append('title', title);
     formData.append('password', password);
     // console.log('click!')
-    const response = await fetch('http://localhost:3000/uploadvideo', {
-      method: 'POST',
-      body: formData,
-    });
-    console.log(response.body)
-    if (response.body.json == "Incorrect and/or missing credentials") {
-      error = response.body.json
-      console.log("error set")
-      return
-    }
-    if (response.ok) {
-      console.log('Upload successful');
-    } else {
-      console.error('Upload failed');
-    }
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://localhost:3000/uploadvideo', true);
+
+    // Update progress bar
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        uploadProgress = Math.round((event.loaded / event.total) * 100);
+      }
+    };
+
+    // Handle success and error
+    xhr.onload = () => {
+      isLoading = false;
+
+      if (xhr.status === 200) {
+        console.log('Upload successful');
+      } else {
+        error = 'Upload failed: ' + xhr.responseText;
+        console.error(error);
+      }
+    };
+
+    xhr.onerror = () => {
+      isLoading = false;
+      error = 'An error occurred during the upload.';
+      console.error(error);
+    };
+
+    xhr.send(formData);
   }
 </script>
     
@@ -80,6 +96,9 @@
 <div class="error-container" class:special={visible}>
   {error}
 </div>
+
+
+
 
 
 

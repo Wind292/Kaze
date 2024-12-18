@@ -21,6 +21,8 @@ function auth(username, password) {
       console.log('ERROR READING PASSWORDS FILE')
       return false
     }
+    console.log(username, password)
+    console.log(data.users)
     if (!(data.users.some(user => user[username] === password))) {
       return false;
     }
