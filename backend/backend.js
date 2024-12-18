@@ -12,6 +12,22 @@ let compque = []
 // }
 
 
+function auth(username, password) {
+  const filePath = path.join(__dirname, `./passwords.json`);
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    data = JSON.parse(data)
+    if (err) {
+      console.error("Error reading file:", err); // Log the error
+      console.log('ERROR READING PASSWORDS FILE')
+      return false
+    }
+    if (!(data.users.some(user => user[username] === password))) {
+      return false;
+    }
+    return true;
+  })
+}
+
 // Enable CORS for all routes
 app.use(cors());
 
@@ -190,18 +206,23 @@ app.post('/uploadvideo', upload.single('video'), (req, res) => {
     
     fs.mkdirSync(userDir, { recursive: true });
 
-   
-    throw "heaosdjslkjdf"
-    const fileName = id + getFileExtension(req.file.originalname);
-    const filePath = path.join(userDir, fileName);
+    if (!auth(req.body.user, req.body.password)) {
+      res.status(200).json({ message: 'Incorrect and/or missing credentials'});
+      console.log("invalid creds")
+      fs.unlink('./public/'+req.file.filename, (err) => {console.log(err)});
+      return
+    }
+      const fileName = id + getFileExtension(req.file.originalname);
+      const filePath = path.join(userDir, fileName);
+      
+      fs.renameSync(req.file.path, filePath);
+      
+      console.log(`File uploaded successfully for user ${req.body.user}`);
+      addVidJson("./backend/public/"+req.body.user+"/info.json", {name: req.body.title, id: id, compressed: false})
+      compque.push({url: "http://localhost:3000/"+req.body.user+"/"+id+".mp4", compressionquality: "med"})
+      console.log(compque)
+      res.status(200).json({ message: 'Video uploaded successfully' });
     
-    fs.renameSync(req.file.path, filePath);
-    
-    console.log(`File uploaded successfully for user ${req.body.user}`);
-    addVidJson("./public/"+req.body.user+"/info.json", {name: req.body.title, id: id, compressed: false})
-    compque.push({url: "http://localhost:3000/"+req.body.user+"/"+id+".mp4", compressionquality: "med"})
-    console.log(compque)
-    res.status(200).json({ message: 'Video uploaded successfully' });
   } catch (error) {
     console.error('Error uploading file:', error);
     res.status(500).json({ message: 'Failed to upload video', error: error.message });
@@ -235,6 +256,7 @@ function getFileExtension(fstring) {
 
 function addVidJson(filePath, newElement) {
   // Read the JSON file
+  console.log(filePath, newElement)
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
       console.error("Error reading the file:", err);

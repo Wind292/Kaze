@@ -6,16 +6,22 @@
   let file;
   let user;
   let error = "";
-
+  let password;
   let visible = false;
   $: visible = error === ""
 
   onMount(() => {
 
     if (!Cookies.get("username")) {
-        window.location.href = Cookies.get("log-in"); // Opens the link in the current tab
+        window.location.href = Cookies.get("log-in"); 
     }
     user = Cookies.get("username")
+
+    if (!Cookies.get("password")) {
+        window.location.href = Cookies.get("log-in");
+    }
+    password = Cookies.get("password")
+
   });
 
   async function handleSubmit(event) {
@@ -34,17 +40,22 @@
     formData.append('video', file); 
     formData.append('user', user);
     formData.append('title', title);
-
+    formData.append('password', password);
+    // console.log('click!')
     const response = await fetch('http://localhost:3000/uploadvideo', {
       method: 'POST',
       body: formData,
     });
-
+    console.log(response.body)
+    if (response.body.json == "Incorrect and/or missing credentials") {
+      error = response.body.json
+      console.log("error set")
+      return
+    }
     if (response.ok) {
       console.log('Upload successful');
     } else {
       console.error('Upload failed');
-      error = response.json(message)
     }
   }
 </script>

@@ -1,5 +1,7 @@
 node_modules
 
+./backend/public/*
+
 # Output
 .output
 .vercel
