@@ -3,22 +3,15 @@
 
     export let data;  // This will hold the data returned from +page.js
 
-    let iscompressed = data.iscompressed;
-
-    // Destructure the video_url from the data prop
     let videoSrc;
     let videoValid = true;
-
-
+    let loading = true;
 
     onMount(() => {
         videoSrc = data.video_url;
 
         if (!videoSrc) {
             videoValid = false;
-        }
-        if (!iscompressed ) {
-            videoSrc = videoSrc.replace("c-", "")
         }
 
         console.log(videoSrc);
@@ -31,18 +24,21 @@
         
         videoElement.addEventListener('loadedmetadata', () => {
             videoValid = true;
+            loading = false;
         });
 
         videoElement.addEventListener('error', () => {
             videoValid = false;
+            loading = false;
         });
     }
 </script>
 
-{#if !videoValid}
+{#if loading}
+    <p>Loading...</p>
+{:else if !videoValid}
     <p>Sorry, the video could not be loaded or is unavailable.</p>
 {:else}
-    
     <video width="90%" controls>
         <source src={videoSrc} type="video/mp4" />
         Your browser does not support the video tag. Use something like Chrome or Firefox.

@@ -34,18 +34,18 @@
 {/if}
 <div class='cards'>
     {#each data.videos as vid}
-        <a href="/{data.userid}/{truncateString(vid.id)}">
+        
+        <a href="/{data.userid}/{truncateString(vid.id)}" class="card">
+            <img src={`http://localhost:3000/pullthumb?u=${data.userid}&v=${truncateString(vid.id)}`} alt="thumbnail">
             <div class="vidcard">
                 {vid.name}
                 <br>
-                
             </div>
             
         </a>
     {/each}
 </div>
 <style>
-
 :root {
         color: rgb(192, 192, 192);
         font-family: Arial, Helvetica, sans-serif;
@@ -53,26 +53,37 @@
         user-select: none;
     }
 
-    .vidcard {
-       
-        margin-left: 2%;
-        width: 97.8%;
-        border-style: none;
-        border-radius: 20px;
-        left: 30%;
-        top: 20vh;
-        margin-bottom: -10px;
-        text-indent: 20px;
-        padding-top: 10px; 
-        padding-bottom: 10px; 
-        /* max-width: 100px; */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 50px;
+    padding: 30px;
+}
 
-    }   
+.card {
+    text-decoration: none;
+    color: inherit;
+}
+
+img {
+    width: 100%;
+    height: 75%;
+    border-radius: 20px;
+}
+
+.vidcard {
+    border-radius: 20px;
+    text-indent: 20px;
+    padding-top: 10px; 
+    padding-bottom: 10px; 
+    color: rgb(255, 255, 255);
+    margin-top: -10px;
+}   
 
 a {
     color: #2980b9;
-    font-size: 50px;
-
+    font-size: 20px;
+    text-decoration: none;
     
 }
 
@@ -126,6 +137,9 @@ a {
 
 
     button {
+        position: absolute;
+        top: 10px;
+        right: 40px;
         margin-left: 20px;
         display: inline-block;
         padding: 12px 20px;

@@ -1,18 +1,12 @@
-
-
-
 export const load = async ({ params }) => {
-    function truncateString(str) {
-        if (str.length > 10) {
-          return str.slice(2); // Remove the first 2 characters
-        }
-        return str; // Return the string unchanged if it's not longer than 10
-      }
-    
     const fetchVideo = async () => {
         let vid = params.vid;
         let user = params.usr;
-        return `http://localhost:3000/pullvid?u=${user}&v=c-${truncateString(vid)}`;
+        const iscomp = await iscompressed();
+        if (iscomp) {
+            vid = `c-${vid}`;
+        }
+        return `http://localhost:3000/pullvid?u=${user}&v=${vid}`;
     };
 
     const iscompressed = async () => {

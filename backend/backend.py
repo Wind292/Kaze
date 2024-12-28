@@ -8,14 +8,19 @@ from flask import Flask
 from flask_cors import CORS
 import threading
 import sqlite3
+import cv2
+from PIL import Image
+
 app = Flask(__name__)
 CORS(app)
 
 UPLOAD_FOLDER = './public'
+THUMBNAIL_FOLDER = './thumbnails'
 USER_LIST_FILE = './userlist.json'
 PASSWORDS_FILE = './passwords.json'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['THUMBNAIL_FOLDER'] = THUMBNAIL_FOLDER
 
 
 def valid_username(username):
@@ -75,6 +80,17 @@ def add_vid_json(username, new_element):
 def home():
     return 'Stop doing that'
 
+@app.route('/pullthumb', methods=['GET'])
+def pullthumb():
+    username = request.args.get('u')
+    video_id = request.args.get('v')
+
+    try:
+        return send_from_directory(app.config['THUMBNAIL_FOLDER'], f"{username}-{video_id}.jpg", as_attachment=False)
+    except FileNotFoundError:
+        return abort(404, "File not found")
+
+
 @app.route('/pullvid', methods=['POST', "GET"])
 def pullvid():
     request_username = request.args.get('u')  # For GET requests
@@ -96,31 +112,6 @@ def pullvid():
     except FileNotFoundError:
         return abort(404, "File not found")
     
-# @app.route('/startnc', methods=['GET'])
-# def start_nc():
-#     if not compque:
-#         return jsonify({"message": "No tasks"}), 204
-
-#     task = compque.pop(0)
-#     return jsonify({"message": task}), 200
-
-# @app.route('/finishnc', methods=['POST'])
-# def finish_nc():
-#     if 'file' not in request.files:
-#         return 'No file uploaded.', 400
-
-#     file = request.files['file']
-#     path = request.form.getlist('path')
-
-#     if not path or len(path) < 2:
-#         return 'Invalid path.', 400
-
-#     save_path = os.path.join(app.config['UPLOAD_FOLDER'], path[0], path[1])
-#     os.makedirs(os.path.dirname(save_path), exist_ok=True)
-
-#     file.save(save_path)
-#     return f"File {file.filename} uploaded successfully.", 200
-
 @app.route('/iscompressed', methods=['GET'])
 def is_compressed():
     username = request.args.get('u')
@@ -260,6 +251,25 @@ def upload_video():
     with open("downscaleQ.json", 'w') as file:
         json.dump(data, file, indent=4)
 
+    # Ensure the thumbnail directory exists
+    os.makedirs(app.config['THUMBNAIL_FOLDER'], exist_ok=True)
+
+    # Saves a thumbnail for the video
+    video = cv2.VideoCapture(file_path)
+    video.set(cv2.CAP_PROP_POS_FRAMES, 20)
+    ret, frame = video.read()
+    if ret:
+        # Save the frame as an image (optional)
+        thumbnail_path = os.path.join(app.config['THUMBNAIL_FOLDER'], f"{username}-{file_id}.jpg")
+        cv2.imwrite(thumbnail_path, frame)
+    else: 
+        print("Failed to retrieve the frame") 
+    video.release() 
+        
+    img = Image.open(thumbnail_path)
+    img_resized = img.resize((int(1920/2), int(1080/2)))
+    img_resized.save(thumbnail_path, quality=30, optimize=True)
+    
     comp_thread = threading.Thread(target=pyhandbreak.formatvid, args=(file_path, username, file_id))
     comp_thread.start()
 
