@@ -4,14 +4,14 @@
 
     onMount(() => {
 
-        if (Cookies.get("username")) {
-            window.location.href = Cookies.get("username"); // Opens the link in the current tab
-        }
+        // if (Cookies.get("username")) {
+        //     window.location.href = Cookies.get("username"); // Opens the link in the current tab
+        // }
 
     });
 
 
-    let error = ""
+    let error = "" 
 
     let username = ""
     let password = ""
@@ -19,16 +19,18 @@
     async function submit() {
         let encpassword = encodeURIComponent(password);
 
-        let url = `http://localhost:3000/passwordcheck/?username=${username}&password=${encpassword}` 
+        let url = `http://localhost:3000/passwordcheck?username=${username}&password=${encpassword}` 
 
         const response = await fetch(url);
         let data = await response.text();
+
+        console.log(data);
 
         if (data === "Ok") {
             Cookies.set('password', password, {expires: 30})
             Cookies.set('username', username, {expires: 30})
             
-            goto("/"+username)
+            window.location.href = Cookies.get("username");
             return
         }
         console.log(data)

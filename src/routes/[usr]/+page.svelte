@@ -1,4 +1,10 @@
 <script>
+    function truncateString(str) {
+        if (str.length > 10) {
+          return str.slice(2); // Remove the first 2 characters
+        }
+        return str; // Return the string unchanged if it's not longer than 10
+      }
     
     
     export let data;  // This will hold the data returned from +page.js
@@ -28,7 +34,7 @@
 {/if}
 <div class='cards'>
     {#each data.videos as vid}
-        <a href="/{data.userid}/{vid.id}">
+        <a href="/{data.userid}/{truncateString(vid.id)}">
             <div class="vidcard">
                 {vid.name}
                 <br>
@@ -62,9 +68,7 @@
         /* max-width: 100px; */
 
     }   
-.cards {
 
-}
 a {
     color: #2980b9;
     font-size: 50px;

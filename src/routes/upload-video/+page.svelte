@@ -1,7 +1,10 @@
 <script>
   import { onMount } from 'svelte';
   import Cookies from 'js-cookie'
-  
+
+  import {tweened } from "svelte/motion";
+  import { cubicOut } from 'svelte/easing';
+
   let isLoading = false;
 
   let title = "";
@@ -10,7 +13,13 @@
   let error = "";
   let password;
   let visible = false;
+  let uploadProgress = 0;
   $: visible = error === ""
+
+  const progress = tweened(0, {
+    duration: 100,
+    easing: cubicOut
+  });
 
   onMount(() => {
 
@@ -27,6 +36,7 @@
   });
 
   async function handleSubmit(event) {
+    
     event.preventDefault();
 
     if (!file) {
@@ -37,29 +47,35 @@
       error = "No title"
       return
     }
+    
 
     const formData = new FormData();
     formData.append('video', file); 
     formData.append('user', user);
     formData.append('title', title);
     formData.append('password', password);
-    // console.log('click!')
     const xhr = new XMLHttpRequest();
     xhr.open('POST', 'http://localhost:3000/uploadvideo', true);
+
+    isLoading = true
 
     // Update progress bar
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {
         uploadProgress = Math.round((event.loaded / event.total) * 100);
+        progress.set(uploadProgress/100)
       }
     };
 
+    
     // Handle success and error
     xhr.onload = () => {
       isLoading = false;
 
       if (xhr.status === 200) {
         console.log('Upload successful');
+        window.location.href = `${user}/`;
+        
       } else {
         error = 'Upload failed: ' + xhr.responseText;
         console.error(error);
@@ -75,34 +91,84 @@
     xhr.send(formData);
   }
 </script>
+<div class="container">
+{#if isLoading === false}
     
-<dir class="container">
+    <h1>
+      Upload Video
+    </h1>
+    <hr>
+    Title <br>
+    <input bind:value={title}>
+    <hr>
+    <br>
+  <form on:submit={handleSubmit}>
+    <input type="file" accept="video/*" on:change="{(e) => file = e.target.files[0]}" />
+    <br><br>
+    <button type="submit">Upload Video</button>
+  </form>
+
+
+
+
+{/if}
+{#if isLoading}
   <h1>
-    Upload Video
+    Uploading...
   </h1>
-  <hr>
-  Title <br>
-  <input bind:value={title}>
-  <hr>
-  <br>
-<form on:submit={handleSubmit}>
-  <input type="file" accept="video/*" on:change="{(e) => file = e.target.files[0]}" />
-  <br><br>
-  <button type="submit">Upload Video</button>
-</form>
+  <p>
+    Don't close this window or your upload will be canceled
+    <br>
+    Once the upload is done your will be redirected to your account page
+    <br><br><br>
+  </p>
+
+  <div class="up-prog">{uploadProgress}%</div>
+  
+
+  <div class="outer-pro">
+    <div class="inner-pro" style="width: {$progress*100}%">
+    </div>  
+  </div>
+
+{/if}
+
+</div>
 
 
-</dir>
 <div class="error-container" class:special={visible}>
   {error}
 </div>
 
-
-
-
-
-
 <style>
+
+  .up-prog {
+    margin-bottom: -60px;
+    font-size: 30px;
+    color: aliceblue;
+    font-weight: bold;
+  }
+
+  .inner-pro, .outer-pro {  
+    height: 40px;
+    border-radius: 15px;
+    
+  }
+
+  
+  .outer-pro {
+    
+    width: calc(100%-20px);
+    border: 1px solid #000; 
+    z-index: 100; 
+    margin: 20px;
+  }
+
+  .inner-pro {
+    width: 0%;
+    background-color: #3498db;;
+  }
+
 
   :root {
       color: rgb(192, 192, 192);

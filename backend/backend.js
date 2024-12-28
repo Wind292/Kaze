@@ -102,44 +102,67 @@ app.get('/usrinfo/:username', (req, res) => {
 
 app.get('/passwordcheck', async (req, res) => {
   const { password, username } = req.query;
+  console.log('xx')
+  console.log(auth2(username,password))
 
+ 
 
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  if (auth2(username, password) ) {
+    res.send("Ok")
+    return
   }
+  res.send("Invalid username or password")
+  return
+  // const filePath = path.join(__dirname, `./passwords.json`);
+  // fs.readFile(filePath, 'utf8', (err, data) => {
 
-  // await sleep(400)
+    
 
+  //   data = JSON.parse(data)
+    
+  //   if (err) {
+  //     console.error("Error reading file:", err); // Log the error
+  //     if (err.code === 'ENOENT') {
+  //       console.log('other')
+  //       res.send("Server Error")
+  //       return
+  //     }
+  //     console.log('other')
+  //     res.send("Server Error")
+  //     return
+  //   }
+
+  //   console.log(data.users)
+
+  //   if ((data.users.some(user => user[username] === password))) {
+  //     console.log('user logged in')
+  //     console.log('user no find');
+  //     res.send("Username or Password Incorrect");
+  //     return;
+  //   }
+  //   console.log('user logged in')
+  //   res.send("Ok");
+  //   return;
+  // });
+})
+
+function auth2(username, password) {
   const filePath = path.join(__dirname, `./passwords.json`);
   fs.readFile(filePath, 'utf8', (err, data) => {
-
-    
-
     data = JSON.parse(data)
-    
-    if (err) {
-      console.error("Error reading file:", err); // Log the error
-      if (err.code === 'ENOENT') {
-        console.log('other')
-        res.send("Server Error")
-        return
+    console.log(data)
+    for (pair in data.users) { 
+      console.log(data.users[pair])
+      console.log("here", data.users[pair][username])
+      if (username === password){
+        return true
       }
-      console.log('other')
-      res.send("Server Error")
-      return
     }
-
-
-    if (!(data.users.some(user => user[username] === password))) {
-      console.log('user no find');
-      res.send("Username or Password Incorrect");
-      return;
-    }
-
-    res.send("Ok");
-    return;
-  });
-})
+    console.log(err)
+  })
+  
+  return false
+}
 
 app.get('/createaccount', async (req, res) => {
     const { bio, id: idRaw, disname, password } = req.query;

@@ -1,3 +1,16 @@
+<script>
+    import Cookies from 'js-cookie'
+    let username = Cookies.get("username")
+    let showTakeme = true
+    if (username) { showTakeme = true }
+
+    function pressTakeme() {
+        window.location.href = username;
+    }
+
+</script>
+
+
 <title>Kaze</title>
 <body>
     <div class="container">
@@ -23,11 +36,20 @@
                 <a href="/log-in" class="button login">Log in</a>
             </div>
         </div>
+        {#if showTakeme}
+            <button class="takeme" on:click={pressTakeme}>
+                Take me to my account page
+            </button>  
+        {/if}
 
     </div>
+
 </body>
 
+
+
 <style>
+
 :root {
     --primary-color: #3498db;
     --secondary-color: #f1c40f;
@@ -45,6 +67,18 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+.takeme {
+    margin-top: 10px;
+    background-color: #0000;
+    border-style: none;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 17px;
+}
+.takeme:hover {
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.8);
 }
 
 body {
